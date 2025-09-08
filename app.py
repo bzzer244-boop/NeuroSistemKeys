@@ -11,9 +11,9 @@ def generate_key():
     key = ''.join(random.choices(string.ascii_letters + string.digits, k=30))
     return {"key": key}
 
-# Rota para verificar key
-@app.route("/verify", methods=["GET"])
-def verify_key():
+# Rota para verificar key (agora é /validate)
+@app.route("/validate", methods=["GET"])
+def validate_key():
     key = request.args.get("key")
     if key and len(key) == 30:
         return {"valid": True}
