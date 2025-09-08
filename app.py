@@ -1,35 +1,24 @@
+from flask import Flask, request
 import random
 import string
-from flask import Flask, request, jsonify
+import os
 
 app = Flask(__name__)
 
-# banco de dados simples em memória (apaga ao reiniciar o server)
-keys = {}
+# Rota para gerar key
+@app.route("/gen", methods=["GET"])
+def generate_key():
+    key = ''.join(random.choices(string.ascii_letters + string.digits, k=30))
+    return {"key": key}
 
-# função para gerar key aleatória de 30 caracteres
-def gerar_key():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=30))
-
-# rota inicial
-@app.route("/")
-def home():
-    return "Servidor de Keys rodando no Render!"
-
-# rota para gerar nova key
-@app.route("/gen")
-def gen():
-    key = gerar_key()
-    keys[key] = True  # salva como válida
-    return jsonify({"key": key})
-
-# rota para verificar se a key é válida
-@app.route("/verify")
-def verify():
+# Rota para verificar key
+@app.route("/verify", methods=["GET"])
+def verify_key():
     key = request.args.get("key")
-    if key in keys and keys[key]:
-        return jsonify({"valid": True})
-    return jsonify({"valid": False})
+    if key and len(key) == 30:
+        return {"valid": True}
+    return {"valid": False}
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))  # Render usa variável de ambiente
+    app.run(host="0.0.0.0", port=port)
